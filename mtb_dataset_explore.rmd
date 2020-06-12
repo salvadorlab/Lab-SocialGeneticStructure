@@ -1,0 +1,56 @@
+---
+title: "Mtb_Data"
+author: "Noah Legall"
+date: "6/12/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document will be used to generate descriptive visualizations of data from NCBI that coincides with Mycobacterium tuberculosis isolates in the database. I manually pruned the dataset to make sure there are only M. tuberculosis isolates and strains are analyzed.
+
+The libraries we will need for this:
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+Lets first start by loading in this data:
+
+```{r,echo=TRUE}
+setwd("/Users/noah_/Downloads/")
+mtb_data <- read.csv("mtuber_SRAmeta.csv")
+```
+
+'mtb_data' contains the metadata for all the m. tuberculosis isolates. Since this project is based on social structures and their relation to genetic diversity, let's see which countries have the most data:
+
+```{r,echo=TRUE}
+mtb_data %>% select(geo_loc_name_country) %>%
+  group_by(geo_loc_name_country) %>% 
+  summarise(count = length(geo_loc_name_country)) %>%
+  ggplot(mapping=aes(geo_loc_name_country,count)) + 
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 45,vjust = 1, hjust=1)) +
+  scale_y_log10() 
+```
+
+The columns are log scaled, but we can already see that South Africa has the most isolates, and Peru also has many sequences. Probably good candidates for study.
+
+Next, I wanted to know in general how many of the isolates are either single or pair end sequences:
+
+```{r,echo=TRUE}
+mtb_data %>% select(LibraryLayout) %>%
+  group_by(LibraryLayout) %>% 
+  summarise(count = length(LibraryLayout)) %>%
+  ggplot(mapping=aes(LibraryLayout,count)) + 
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 45,vjust = 1, hjust=1)) +
+  scale_y_log10() 
+```
+
+There seem to be quite a mixture of single read and pairend reads. Just computed for curiorisy sake. 
